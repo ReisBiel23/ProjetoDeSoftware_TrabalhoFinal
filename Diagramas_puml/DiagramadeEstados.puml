@@ -1,0 +1,24 @@
+@startuml
+title "Diagrama de Estados: Ciclo de Vida da Assinatura"
+
+[*] --> Gratuito : Novo Usuário
+
+' O caminho feliz
+Gratuito --> Ativa : Solicitar Plano Pago [Usuário] \n Pagamento Aprovado [Sistema]
+Ativa --> Ativa : Renovação Aprovada [Sistema]
+Ativa --> Encerrada : Plano Expirado [Sistema]
+
+' O estado de "pausa" ou "revisão" (como no seu exemplo)
+Ativa --> Suspensa : Falha na Renovação [Sistema]
+Suspensa --> Ativa : Pagamento Retomado [Usuário]
+
+' O estado de "cancelamento" (como no seu exemplo)
+Ativa --> Cancelada : Solicitar Cancelamento [Usuário]
+Suspensa --> Cancelada : Solicitar Cancelamento [Usuário]
+
+' Caminhos de fim
+Suspensa --> Encerrada : Período de Graça Expirou [Sistema]
+Cancelada --> Encerrada : Fim do Período de Assinatura [Sistema]
+Encerrada --> [*]
+
+@enduml

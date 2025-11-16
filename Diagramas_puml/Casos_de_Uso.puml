@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+
+actor "Usuário" as Usuario
+actor "Personal Trainer" as Personal
+actor "Nutricionista" as Nutricionista
+actor "Administrador" as Admin
+actor "Sistema de Pagamentos" as Pagamento
+
+rectangle "Básico Bem Feito" {
+  usecase "UC-01 Realizar Cadastro" as UC01
+  usecase "UC-02 Definir Objetivo\n(Emagrecer/Ganhar Massa)" as UC02
+  usecase "UC-03 Visualizar Ficha de Exercícios" as UC03
+  usecase "UC-04 Assistir Vídeos de Execução" as UC04
+  usecase "UC-05 Escolher Plano\n(Gratuito/Pago)" as UC05
+  usecase "UC-06 Processar Pagamento\nAssinatura do Plano Pago" as UC06
+  usecase "UC-07 Visualizar Dados\nCadastrais do Usuário" as UC07
+  usecase "UC-08 Montar/Atualizar\nFicha de Exercícios" as UC08
+  usecase "UC-09 Acompanhar Rotina\nNutricional do Usuário" as UC09
+  usecase "UC-10 Gerenciar Usuários" as UC10
+  usecase "UC-11 Gerenciar Profissionais" as UC11
+  usecase "UC-12 Manter Sistema\n(Configurações/Monitoramento)" as UC12
+}
+
+' Relações do Usuário
+Usuario --> UC01
+Usuario --> UC02
+Usuario --> UC03
+Usuario --> UC04
+Usuario --> UC05
+
+' Corrigido: include obrigatório
+UC05 --> UC06 : <<include>>
+
+' Sistema de Pagamentos interage com UC06
+Pagamento --> UC06
+
+' Personal Trainer
+Personal --> UC07
+Personal --> UC08
+
+' Nutricionista
+Nutricionista --> UC09
+
+' Administrador
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+
+@enduml

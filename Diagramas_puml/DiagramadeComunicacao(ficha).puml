@@ -1,0 +1,35 @@
+@startuml
+title "Diagrama de Comunicação: Montar Ficha de Exercícios (UC-08)"
+
+actor "Personal Trainer" as Personal
+participant "App Fitness (Web)" as App
+participant "Sistema (API Gateway)" as Gateway
+participant ":Serviço de Usuários" as SvcUser
+participant ":Serviço de Treinos" as SvcTreino
+database ":Bancos de Dados (JSON)" as DB
+
+Personal <--> App
+App <--> Gateway
+Gateway <--> SvcUser
+Gateway <--> SvcTreino
+SvcUser <--> DB
+SvcTreino <--> DB
+
+' Fluxo de "load"
+App -> Gateway : 1: Requisição GET /alunos
+Gateway -> SvcUser : 2: Chama 'listarAlunos()'
+SvcUser -> DB : 3: Busca lista de alunos
+DB --> SvcUser : 4: Retorna lista de alunos
+SvcUser --> Gateway : 5: Retorna lista de alunos
+Gateway --> App : 6: Retorna lista de alunos
+
+' Fluxo de "submit"
+Personal -> App : 7: Seleciona aluno, preenche ficha e envia
+App -> Gateway : 8: Requisição POST /fichas (idAluno, dadosFicha)
+Gateway -> SvcTreino : 9: Chama 'cadastrarFicha(idAluno, dadosFicha)'
+SvcTreino -> DB : 10: Salva nova ficha (Escrita)
+DB --> SvcTreino : 11: Confirma registro (ID da Ficha)
+SvcTreino --> Gateway : 12: Resposta de sucesso (ID da Ficha)
+Gateway --> App : 13: Resposta 201 Created (ID da Ficha)
+App -> Personal : 14: Exibe mensagem de sucesso
+@enduml

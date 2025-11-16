@@ -1,0 +1,45 @@
+@startuml
+title "Diagrama de Sequência: Realizar Cadastro (UC-01)"
+hide footbox
+autonumber
+
+actor "Usuário" as User
+participant "App Fitness" as App
+participant ":Sistema (API Gateway)" as Gateway
+participant ":Serviço de Usuários" as SvcUser
+participant ":Bancos de Dados (JSON)" as DB
+
+activate User
+User -> App : 1. Acessa "Realizar Cadastro"
+activate App
+App --> User : 2. Exibe formulário de cadastro
+deactivate App
+
+User -> App : 3. Preenche dados (nome, email, senha) e envia
+activate App
+App -> Gateway : 4. Requisição POST /cadastro (dadosUsuario)
+activate Gateway
+
+Gateway -> SvcUser : 5. Chama 'cadastrarUsuario(dadosUsuario)'
+activate SvcUser
+
+SvcUser -> DB : 6. Valida se email já existe (Leitura no JSON)
+activate DB
+DB --> SvcUser : 7. Retorna (email não existe)
+deactivate DB
+
+SvcUser -> DB : 8. Salva novo usuário (Escrita no JSON)
+activate DB
+DB --> SvcUser : 9. Confirma registro (ID do Usuário)
+deactivate DB
+
+SvcUser --> Gateway : 10. Retorna sucesso (ID do Usuário)
+deactivate SvcUser
+
+Gateway --> App : 11. Resposta 201 Created (ID do Usuário)
+deactivate Gateway
+
+App --> User : 12. Exibe mensagem de sucesso
+deactivate App
+deactivate User
+@enduml

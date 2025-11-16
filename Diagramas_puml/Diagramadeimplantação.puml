@@ -1,0 +1,42 @@
+@startuml
+title "Diagrama de Implantação - Sistema 'Básico Bem Feito' (Estilo Nuvem)"
+skinparam defaultTextAlignment center
+
+' --- Clientes ---
+node "Dispositivo Cliente Web" as WebClient {
+  artifact "Navegador Web" as Browser
+}
+
+node "Dispositivo Cliente Mobile" as MobileClient {
+  artifact "Aplicativo Mobile" as MobileApp
+}
+
+' --- Nuvem ---
+node "Nuvem" as Cloud {
+  
+  node "Servidor da Aplicação" as AppServer {
+    artifact "API Gateway" as Gateway
+    artifact "Serviços do Backend\n(Microsserviços)" as BackendServices
+    
+    Gateway -down- BackendServices
+  }
+  
+  node "Servidor de Arquivos (JSON)" as FileServer {
+     artifact "Arquivos de Dados (.json)" as JsonFiles
+  }
+  
+  node "Armazenamento de Objetos (S3)" as ObjectStorage {
+    artifact "Mídias (Fotos, Vídeos de Exercícios)" as MediaFiles
+  }
+  
+  ' Conexões dentro da Nuvem
+  AppServer -right-> FileServer : "Leitura/Escrita de Arquivos"
+  AppServer -right-> ObjectStorage : "HTTP/S (S3 API)"
+}
+
+' --- Conexões Externas ---
+' Apontando diretamente para o Gateway, como no exemplo
+WebClient -down-> Gateway : "HTTP/S"
+MobileClient -down-> Gateway : "HTTP/S"
+
+@enduml

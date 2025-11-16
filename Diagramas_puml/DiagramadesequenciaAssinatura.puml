@@ -1,0 +1,55 @@
+@startuml
+title "Diagrama de Sequência: Assinatura de Plano Pago (UC-05/06 - Cenário de Sucesso)"
+hide footbox
+
+' Numeração automática sequencial
+
+
+actor "Usuário" as User
+participant "App Fitness" as App
+participant ":Sistema (API Gateway)" as Gateway
+participant "Sistema de Pagamentos" as GatewayExterno
+participant ":Serviço de Assinaturas" as SvcSub
+participant ":Bancos de Dados (JSON)" as DB
+
+activate User
+User -> App : 1. Escolhe "Assinar Plano Pago"
+activate App
+App --> User : 2. Exibe formulário de pagamento
+deactivate App
+
+User -> App : 3. Preenche dados (idPlano, dadosCartao) e envia
+activate App
+App -> Gateway : 4. Requisição POST /assinaturas (idUsuario, idPlano, dadosCartao)
+activate Gateway
+
+' Etapa 1: Processar o pagamento
+Gateway -> GatewayExterno : 5. Chama 'processarPagamento(dadosCartao, valor)'
+activate GatewayExterno
+GatewayExterno --> Gateway : 6. Retorna 'pagamentoAprovado(idTransacao)'
+deactivate GatewayExterno
+
+' Etapa 2: Ativar a assinatura no sistema
+Gateway -> SvcSub : 7. Chama 'ativarAssinatura(idUsuario, idPlano, idTransacao)'
+activate SvcSub
+
+SvcSub -> DB : 8. Salva registro de assinatura (Escrita no JSON)
+activate DB
+DB --> SvcSub : 9. Confirma registro (ID Assinatura)
+deactivate DB
+    
+SvcSub -> DB : 10. Atualiza status do usuário (Atualiza JSON de usuário)
+activate DB
+DB --> SvcSub : 11. Confirma atualização
+deactivate DB
+
+SvcSub --> Gateway : 12. Retorna sucesso (ID Assinatura)
+deactivate SvcSub
+
+Gateway --> App : 13. Resposta 200 OK (Assinatura Ativa)
+deactivate Gateway
+
+App --> User : 14. Exibe mensagem "Assinatura realizada com sucesso!"
+deactivate App
+deactivate User
+@enduml

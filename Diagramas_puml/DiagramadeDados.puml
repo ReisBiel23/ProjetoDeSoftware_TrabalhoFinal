@@ -1,0 +1,100 @@
+@startuml
+title "Diagrama de Modelo de Dados - Sistema 'Básico Bem Feito'"
+skinparam linetype ortho ' Linhas retas como no exemplo
+skinparam nodesep 100
+skinparam ranksep 100
+
+' --- Estilização (Cores por domínio) ---
+skinparam entity {
+    BackgroundColor<<Usuarios>> LightGreen
+    BorderColor<<Usuarios>> DarkGreen
+
+    BackgroundColor<<Treinos>> LightBlue
+    BorderColor<<Treinos>> DarkBlue
+
+    BackgroundColor<<Pagamentos>> LightCyan
+    BorderColor<<Pagamentos>> DarkCyan
+}
+
+' --- Entidades (Tabelas) ---
+
+' Domínio: Usuários
+entity "USUARIOS" as Usuarios <<Usuarios>> {
+  + id: UUID <PK>
+  --
+  nome: VARCHAR(255)
+  email: VARCHAR(255) <UNIQUE>
+  hashSenha: VARCHAR(255)
+  role: VARCHAR(50) <ENUM> ' USUARIO_ALUNO, PERSONAL, ADMIN
+  objetivo: VARCHAR(50) <ENUM> ' EMAGRECER, HIPERTROFIA
+}
+
+' Domínio: Treinos
+entity "FICHAS_TREINO" as Fichas <<Treinos>> {
+  + id: UUID <PK>
+  --
+  nome: VARCHAR(255)
+  dataCriacao: TIMESTAMP
+  dataValidade: TIMESTAMP
+  usuario_id: UUID <FK>
+}
+
+entity "ITENS_EXERCICIO" as Itens <<Treinos>> {
+  + id: UUID <PK>
+  --
+  series: INTEGER
+  repeticoes: VARCHAR(50)
+  carga: DECIMAL(10,2)
+  observacao: TEXT
+  ficha_id: UUID <FK>
+  exercicio_id: UUID <FK>
+}
+
+entity "EXERCICIOS" as Exercicios <<Treinos>> {
+  + id: UUID <PK>
+  --
+  nome: VARCHAR(255) <UNIQUE>
+  grupoMuscular: VARCHAR(100)
+  urlVideo: VARCHAR(255)
+}
+
+' Domínio: Pagamentos
+entity "PLANOS" as Planos <<Pagamentos>> {
+  + id: UUID <PK>
+  --
+  nome: VARCHAR(255) <UNIQUE>
+  descricao: TEXT
+  valor: DECIMAL(10,2)
+}
+
+entity "ASSINATURAS" as Assinaturas <<Pagamentos>> {
+  + id: UUID <PK>
+  --
+  dataInicio: TIMESTAMP
+  dataFim: TIMESTAMP
+  status: VARCHAR(50) <ENUM> ' ATIVO, INATIVO, CANCELADO
+  usuario_id: UUID <FK>
+  plano_id: UUID <FK>
+}
+
+entity "PAGAMENTOS" as Pagamentos <<Pagamentos>> {
+  + id: UUID <PK>
+  --
+  dataPagamento: TIMESTAMP
+  valorPago: DECIMAL(10,2)
+  status: VARCHAR(50) <ENUM> ' APROVADO, REJEITADO
+  idTransacaoExterna: VARCHAR(255)
+  assinatura_id: UUID <FK>
+}
+
+
+' --- Relacionamentos ---
+Usuarios ||--o{ Fichas
+Usuarios ||--o{ Assinaturas
+
+Fichas ||--|{ Itens
+Exercicios ||--o{ Itens
+
+Planos ||--o{ Assinaturas
+Assinaturas ||--|{ Pagamentos
+@enduml

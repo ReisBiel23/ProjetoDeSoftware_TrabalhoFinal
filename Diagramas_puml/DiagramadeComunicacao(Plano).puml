@@ -1,0 +1,29 @@
+@startuml
+title "Diagrama de Comunicação: Assinatura de Plano Pago (UC-05/06)"
+
+actor "Usuário" as User
+participant "App Fitness" as App
+participant "Sistema (API Gateway)" as Gateway
+participant "Sistema de Pagamentos" as GatewayExterno
+participant ":Serviço de Assinaturas" as SvcSub
+database ":Bancos de Dados (JSON)" as DB
+
+User <--> App
+App <--> Gateway
+Gateway <--> GatewayExterno
+Gateway <--> SvcSub
+SvcSub <--> DB
+
+User -> App : 1: Envia dados de pagamento (idPlano, dadosCartao)
+App -> Gateway : 2: Requisição POST /assinaturas
+Gateway -> GatewayExterno : 3: Chama 'processarPagamento(dadosCartao, valor)'
+GatewayExterno --> Gateway : 4: Retorna 'pagamentoAprovado(idTransacao)'
+Gateway -> SvcSub : 5: Chama 'ativarAssinatura(idUsuario, idPlano, idTransacao)'
+SvcSub -> DB : 6: Salva nova assinatura (Escrita)
+DB --> SvcSub : 7: Confirma registro (ID Assinatura)
+SvcSub -> DB : 8: Atualiza status do usuário (Escrita)
+DB --> SvcSub : 9: Confirma atualização
+SvcSub --> Gateway : 10: Resposta de sucesso (ID Assinatura)
+Gateway --> App : 11: Resposta 200 OK (Assinatura Ativa)
+App -> User : 12: Exibe mensagem "Pagamento aprovado!"
+@enduml

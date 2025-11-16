@@ -1,0 +1,53 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+' --- Atores Externos ---
+Person(user, "Usuário", "Aluno da academia.")
+Person(pro, "Profissional", "Personal Trainer, Nutricionista ou Administrador.")
+System_Ext(pagamento, "Sistema de Pagamentos", "Gateway externo para processar transações financeiras (ex: Stripe, PagSeguro).")
+
+' --- Início da Fronteira do Sistema ---
+System_Boundary(c1, "Sistema 'Básico Bem Feito'") {
+
+    ' --- Clientes (Contêineres) ---
+    Container(mobile, "App Mobile", "React Native / Flutter", "Permite ao usuário acessar seus treinos e perfil.")
+    Container(web, "Aplicação Web", "React / Angular", "Portal para profissionais gerenciarem alunos e fichas.")
+
+    ' --- Back-end (Contêineres) ---
+    Container(gateway, "API Gateway", "NGINX / Spring Gateway", "Ponto de entrada único para todas as requisições. Roteia, autentica e monitora.")
+    
+    ' --- Microsserviços ---
+    Container(svc_user, "Serviço de Usuários", "Node.js (API REST)", "Gerencia cadastro, perfis e autenticação.")
+    Container(svc_treino, "Serviço de Treinos", "Node.js (API REST)", "Gerencia fichas de exercício e progresso.")
+    Container(svc_sub, "Serviço de Assinaturas", "Node.js (API REST)", "Gerencia planos de usuário e pagamentos.")
+
+    ' --- Banco de Dados ---
+    ContainerDb(db, "Bancos de Dados", "JSON (Sistema de Arquivos)", "Armazena os dados dos serviços (usuários, treinos, assinaturas).")
+
+}
+' --- Fim da Fronteira do Sistema ---
+
+
+' --- Relacionamentos (Usuários -> Sistema) ---
+Rel(user, mobile, "Usa", "HTTPS")
+Rel(pro, web, "Usa", "HTTPS")
+
+Rel(mobile, gateway, "Faz requisições API", "HTTPS/JSON")
+Rel(web, gateway, "Faz requisições API", "HTTPS/JSON")
+
+' --- Relacionamentos (Gateway -> Microsserviços) ---
+Rel_D(gateway, svc_user, "Encaminha para")
+Rel_D(gateway, svc_treino, "Encaminha para")
+Rel_D(gateway, svc_sub, "Encaminha para")
+
+' --- Relacionamentos (Microsserviços -> BD) ---
+Rel(svc_user, db, "Lê/Escreve", "JSON")
+Rel(svc_treino, db, "Lê/Escreve", "JSON")
+Rel(svc_sub, db, "Lê/Escreve", "JSON")
+
+' --- Relacionamentos (Sistema -> Externos) ---
+Rel(svc_sub, pagamento, "Processa Pagamento", "HTTPS/JSON")
+
+@enduml

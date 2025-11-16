@@ -1,0 +1,160 @@
+@startuml
+title "Diagrama de Sequência: Acesso Geral e Funcionalidades do Sistema (Básico Bem Feito) – com Nutricionista"
+hide footbox
+
+actor "Admin/Personal" as Pro
+actor "Nutricionista" as Nutri
+actor "Usuário" as User
+participant "Navigator Web (Profissionais)" as Web
+participant "App Mobile (Usuário)" as Mobile
+participant ":Sistema (API Gateway)" as Gateway
+participant ":Svc. Autenticação" as SvcAuth
+participant ":Svc. Usuários" as SvcUser
+participant ":Svc. Treinos" as SvcTreino
+participant ":Svc. Nutrição" as SvcNutri
+participant ":Bancos de Dados (JSON)" as DB
+
+'===============================
+group Autenticação de Usuário
+'===============================
+
+  alt [Login Profissionais (Web) — Admin/Personal/Nutricionista]
+    Pro -> Web : 1.1 Acessar Sistema (URL)
+    activate Web
+    Web --> Pro : 1.2 Exibir Tela de Login
+    deactivate Web
+
+    Nutri -> Web : 1.3 Acessar Sistema (URL)
+    activate Web
+    Web --> Nutri : 1.4 Exibir Tela de Login
+    deactivate Web
+
+    Pro -> Web : 1.5 Inserir Credenciais
+    activate Web
+    Web -> Gateway : 1.6 POST /auth/login
+    deactivate Web
+
+    ' Observação: Nutricionista segue mesmo fluxo de submissão de credenciais
+    Nutri -> Web : 1.7 Inserir Credenciais
+    activate Web
+    Web -> Gateway : 1.8 POST /auth/login
+    deactivate Web
+
+  else [Login Usuário (Mobile)]
+    User -> Mobile : 1.9 Abrir App Mobile
+    activate Mobile
+    Mobile --> User : 1.10 Exibir Tela de Login
+    deactivate Mobile
+
+    User -> Mobile : 1.11 Inserir Credenciais
+    activate Mobile
+    Mobile -> Gateway : 1.12 POST /auth/login
+    deactivate Mobile
+  end
+
+  activate Gateway
+  Gateway -> SvcAuth : 1.13 Validar Credenciais
+  activate SvcAuth
+
+  SvcAuth -> DB : 1.14 Consultar Usuário
+  activate DB
+  DB --> SvcAuth : 1.15 Retorno Consulta
+  deactivate DB
+
+  SvcAuth --> Gateway : 1.16 Retornar Token ou Erro
+  deactivate SvcAuth
+
+  alt [Login bem-sucedido]
+    Gateway --> Web : 1.17 Retornar Token (Profissionais)
+    Gateway --> Mobile : 1.18 Retornar Token (Usuário)
+
+    Web -> Web : 1.19 Armazenar Token (Profissional)
+    Mobile -> Mobile : 1.20 Armazenar Token (Usuário)
+
+    Web --> Pro : 1.21 Exibir Dashboard (Profissional)
+    Web --> Nutri : 1.22 Exibir Dashboard (Nutricionista)
+    Mobile --> User : 1.23 Exibir Dashboard (App)
+  else [Login falhou]
+    Gateway --> Web : 1.17 Exibir Erro de Login
+    Gateway --> Mobile : 1.18 Exibir Erro de Login
+  end
+
+  deactivate Gateway
+end
+
+
+'==============================================
+group Acesso à Funcionalidade (ex: Visualizar Ficha)
+'==============================================
+
+  alt [Usuário (Mobile)]
+    User -> Mobile : 2.1 Selecionar "Visualizar Minha Ficha"
+    activate Mobile
+    Mobile -> Gateway : 2.2 GET /fichas/minha
+    deactivate Mobile
+
+  else [Personal (Web)]
+    Pro -> Web : 2.3 Selecionar "Ver Aluno"
+    activate Web
+    Web -> Gateway : 2.4 GET /usuarios/idAluno
+    deactivate Web
+
+  else [Nutricionista (Web)]
+    Nutri -> Web : 2.3a Selecionar "Acompanhar Rotina Nutricional"
+    activate Web
+    Web -> Gateway : 2.4a GET /usuarios/idAluno/nutricional
+    deactivate Web
+  end
+
+  activate Gateway
+  Gateway -> SvcAuth : 2.5 Validar Token
+  activate SvcAuth
+  SvcAuth --> Gateway : 2.6 Token OK / Inválido
+  deactivate SvcAuth
+
+
+  alt [Token válido]
+    ' Fluxo de treinos (usuário/personal)
+    Gateway -> SvcTreino : 2.7 Consultar Ficha
+    activate SvcTreino
+
+    SvcTreino -> DB : 2.8 Ler Dados (Ficha)
+    activate DB
+    DB --> SvcTreino : 2.9 Retorno Dados (Ficha)
+    deactivate DB
+
+    SvcTreino --> Gateway : 2.10 Retorno da Ficha
+    deactivate SvcTreino
+
+    Gateway --> Mobile : 2.11 Dados da Ficha
+    Gateway --> Web : 2.12 Dados do Aluno
+
+    Mobile --> User : 2.13 Exibir Ficha
+    Web --> Pro : 2.14 Exibir Dados do Aluno
+
+    ' Fluxo nutricional (Nutricionista)
+    Gateway -> SvcNutri : 2.7a Consultar Rotina Nutricional
+    activate SvcNutri
+
+    SvcNutri -> DB : 2.8a Ler Dados Nutricionais
+    activate DB
+    DB --> SvcNutri : 2.9a Retorno Dados Nutricionais
+    deactivate DB
+
+    SvcNutri --> Gateway : 2.10a Retorno Rotina Nutricional
+    deactivate SvcNutri
+
+    Gateway --> Web : 2.11a Dados Nutricionais
+    Web --> Nutri : 2.12a Exibir Rotina Nutricional
+
+  else [Token inválido]
+    Gateway --> Mobile : 2.11 Retornar HTTP 401
+    Gateway --> Web : 2.12 Retornar HTTP 401
+
+    Mobile -> Mobile : 2.13 Redirecionar para Login
+    Web -> Web : 2.14 Redirecionar para Login
+  end
+
+  deactivate Gateway
+end
+@enduml

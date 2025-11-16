@@ -1,0 +1,47 @@
+@startuml
+title "Diagrama de Componentes - Sistema 'Básico Bem Feito'"
+skinparam componentStyle uml2
+
+' --- 1. Frontend ---
+package "Frontend (Web/Mobile)" as Frontend {
+  [Aplicação Web] as Web
+  [App Mobile] as Mobile
+}
+
+' --- 2. Gateway ---
+[API Gateway] as Gateway
+
+' --- 3. Serviços ---
+[Svc. Usuários] as SvcUser
+[Svc. Treinos] as SvcTreino
+[Svc. Assinaturas] as SvcSub
+
+' --- 4. Sistema Externo ---
+[Sistema de Pagamentos] as SvcPagamento
+
+' --- 5. Banco de Dados ---
+package "Banco de Dados (JSON)" as DB {
+  artifact "usuarios.json" as DB_User
+  artifact "treinos.json" as DB_Treino
+  artifact "assinaturas.json" as DB_Sub
+}
+
+' --- Relacionamentos (Frontend -> Gateway) ---
+Frontend -down-> Gateway : "REST/HTTP"
+
+' --- Relacionamentos (Gateway -> Serviços) ---
+Gateway -down-> SvcUser
+Gateway -down-> SvcTreino
+Gateway -down-> SvcSub
+
+' --- Relacionamentos (Inter-Serviços) ---
+SvcTreino ..> SvcUser : "consulta"
+SvcSub ..> SvcUser : "consulta"
+SvcSub -right-> SvcPagamento : "Processa Pagamento (API)"
+
+' --- Relacionamentos (Serviços -> Banco de Dados) ---
+SvcUser -down-> DB : "Lê/Escreve"
+SvcTreino -down-> DB : "Lê/Escreve"
+SvcSub -down-> DB : "Lê/Escreve"
+
+@enduml

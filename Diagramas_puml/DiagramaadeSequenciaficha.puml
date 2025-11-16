@@ -1,0 +1,62 @@
+@startuml
+title "Diagrama de Sequência: Montar Ficha de Exercícios (UC-08)"
+hide footbox
+autonumber
+
+actor "Personal Trainer" as Personal
+participant "App Fitness" as App
+participant ":Sistema (API Gateway)" as Gateway
+participant ":Serviço de Usuários" as SvcUser
+participant ":Serviço de Treinos" as SvcTreino
+participant ":Bancos de Dados (JSON)" as DB
+
+activate Personal
+Personal -> App : 1. Acessa "Montar Ficha"
+activate App
+
+' Etapa 1: Buscar o aluno
+App -> Gateway : 2. Requisição GET /alunos?busca=nomeDoAluno
+activate Gateway
+Gateway -> SvcUser : 3. Chama 'buscarUsuario(nomeDoAluno)'
+activate SvcUser
+SvcUser -> DB : 4. Busca usuário (Leitura no JSON)
+activate DB
+DB --> SvcUser : 5. Retorna dados do aluno
+deactivate DB
+SvcUser --> Gateway : 6. Retorna dados do aluno
+deactivate SvcUser
+Gateway --> App : 7. Resposta (dadosAluno)
+deactivate Gateway
+
+App --> Personal : 8. Exibe aluno e formulário da ficha
+deactivate App
+
+' Etapa 2: Salvar a ficha
+Personal -> App : 9. Preenche ficha (exercícios, séries) e envia
+activate App
+App -> Gateway : 10. Requisição POST /fichas (idAluno, dadosFicha)
+activate Gateway
+
+Gateway -> SvcTreino : 11. Chama 'cadastrarFicha(idAluno, dadosFicha)'
+activate SvcTreino
+
+SvcTreino -> DB : 12. Valida dados da ficha (Leitura JSON)
+activate DB
+DB --> SvcTreino : 13. Dados OK
+deactivate DB
+
+SvcTreino -> DB : 14. Salva nova ficha (Escrita no JSON)
+activate DB
+DB --> SvcTreino : 15. Confirma registro (ID da Ficha)
+deactivate DB
+
+SvcTreino --> Gateway : 16. Retorna sucesso (ID da Ficha)
+deactivate SvcTreino
+
+Gateway --> App : 17. Resposta 201 Created (ID da Ficha)
+deactivate Gateway
+
+App --> Personal : 18. Exibe mensagem de sucesso
+deactivate App
+deactivate Personal
+@enduml

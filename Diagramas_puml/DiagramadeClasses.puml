@@ -1,0 +1,114 @@
+@startuml
+title "Diagrama de Classes - Sistema 'Básico Bem Feito'"
+
+skinparam classAttributeIconSize 0
+skinparam classAttributeFontColor black
+skinparam classAttributeFontArrowColor black
+skinparam classFontColor black
+skinparam classArrowColor black
+
+skinparam package {
+    BackgroundColor<<Enums>> LightYellow
+    BackgroundColor<<Usuarios>> LightGray
+    BackgroundColor<<Treinos>> LightBlue
+    BackgroundColor<<Pagamentos>> LightGreen
+    BorderColor black
+}
+
+package "Domínios Principais - Básico Bem Feito" {
+
+    package "Enums & Tipos" <<Enums>> {
+      enum Role {
+        USUARIO_ALUNO
+        PERSONAL
+        NUTRICIONISTA
+        ADMIN
+      }
+      enum StatusPlano {
+        GRATUITO
+        ATIVO
+        INATIVO
+        CANCELADO
+      }
+      enum TipoObjetivo {
+        EMAGRECER
+        HIPERTROFIA
+        MANUTENCAO
+      }
+      enum StatusPagamento {
+        PENDENTE
+        APROVADO
+        REJEITADO
+      }
+    }
+
+    package "Gestão de Usuários e Acesso" <<Usuarios>> {
+      class Usuario {
+        -id: UUID
+        +nome: String
+        +email: String
+        -hashSenha: String
+        +role: Role
+        +objetivo: TipoObjetivo
+        --
+        +mudarPlano(novoPlano: StatusPlano): void
+        +atualizarObjetivo(novoObjetivo: TipoObjetivo): void
+      }
+    }
+
+    package "Gestão de Treinos" <<Treinos>> {
+      class FichaTreino {
+        -id: UUID
+        +nome: String
+        -dataCriacao: Date
+        -dataValidade: Date
+      }
+      class ItemExercicio {
+        -id: UUID
+        +series: Integer
+        +repeticoes: String
+        +carga: Decimal
+        +observacao: String
+      }
+      class Exercicio {
+        -id: UUID
+        +nome: String
+        +grupoMuscular: String
+        +urlVideo: String
+      }
+    }
+
+    package "Gestão de Planos e Pagamentos" <<Pagamentos>> {
+      class Plano {
+        -id: UUID
+        +nome: String
+        +descricao: String
+        +valor: Decimal
+      }
+      class Assinatura {
+        -id: UUID
+        -dataInicio: Date
+        -dataFim: Date
+        +status: StatusPlano
+      }
+      class Pagamento {
+        -id: UUID
+        -dataPagamento: Date
+        -valorPago: Decimal
+        +status: StatusPagamento
+        -idTransacaoExterna: String
+      }
+    }
+}
+
+Usuario "1" -- "0..*" FichaTreino : (Aluno) possui >
+FichaTreino "1" -- "1..*" ItemExercicio : contém >
+ItemExercicio "0..*" -- "1" Exercicio : refere-se a <
+Usuario "1" -- "0..*" Assinatura : tem >
+Plano "1" -- "0..*" Assinatura : refere-se a <
+Assinatura "1" -- "1..*" Pagamento : gera >
+Usuario ..> Role
+Usuario ..> TipoObjetivo
+Assinatura ..> StatusPlano
+Pagamento ..> StatusPagamento
+@enduml

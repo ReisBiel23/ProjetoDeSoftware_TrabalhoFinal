@@ -1,0 +1,25 @@
+@startuml
+title "Diagrama de Comunicação: Realizar Cadastro (UC-01)"
+
+actor "Usuário" as User
+participant "App Fitness" as App
+participant "Sistema (API Gateway)" as Gateway
+participant ":Serviço de Usuários" as SvcUser
+database ":Bancos de Dados (JSON)" as DB
+
+User <--> App
+App <--> Gateway
+Gateway <--> SvcUser
+SvcUser <--> DB
+
+User -> App : 1: Preenche dados (nome, email, senha) e envia
+App -> Gateway : 2: Requisição POST /cadastro (dadosUsuario)
+Gateway -> SvcUser : 3: Chama 'cadastrarUsuario(dadosUsuario)'
+SvcUser -> DB : 4: Valida se email já existe (Leitura)
+DB --> SvcUser : 5: Retorna (email não existe)
+SvcUser -> DB : 6: Salva novo usuário (Escrita)
+DB --> SvcUser : 7: Confirma registro (ID do Usuário)
+SvcUser --> Gateway : 8: Retorna sucesso (ID do Usuário)
+Gateway --> App : 9: Resposta 201 Created (ID do Usuário)
+App -> User : 10: Exibe mensagem de sucesso
+@enduml
