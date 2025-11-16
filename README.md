@@ -57,7 +57,7 @@ Apresenta os casos de uso principais do sistema **Básico Bem Feito**, identific
 
 Detalha as classes do sistema (agrupadas por domínios como "Gestão de Usuários" e "Gestão de Treinos"), seus atributos, métodos e os relacionamentos estáticos (associações) entre elas, representando a estrutura estática do projeto.
 
-![Diagrama de Classe](Diagramas_IMG/D/DiagramaClasses.png)
+![Diagrama de Classe](Diagramas_IMG/D/DiagramadeClasses.png)
 
 ---
 
@@ -65,7 +65,7 @@ Detalha as classes do sistema (agrupadas por domínios como "Gestão de Usuário
 
 Exibe a organização e a dependência dos componentes de software (como `API Gateway`, `Svc. Usuários`, `Svc. Treinos`), fornecendo uma visão modular do sistema e como as diferentes partes lógicas se encaixam e interagem.
 
-![Diagrama de Componentes](Diagramas_IMG/D/DiagramComponenetes.png)
+![Diagrama de Componentes](Diagramas_IMG/D/DiagramComponentes.png)
 
 ---
 
@@ -83,7 +83,7 @@ Detalha as interações necessárias para o processo de cadastro de um novo usu�
 
 Detalha as interações dos componentes do sistema para que um Personal Trainer monte uma nova ficha de treino para um aluno.
 
-![Diagrama de Comunicação: Ficha](Diagramas_IMG/D/DiagramadeComunicacao(Ficha).png)
+![Diagrama de Comunicação: Ficha](Diagramas_IMG/D/DiagramadeCominicacao(Ficha).png)
 
 #### Diagrama de Comunicação: Assinatura de Plano Pago (UC-05/06)
 
@@ -105,7 +105,7 @@ Representa os diferentes estados que o objeto **Assinatura** pode ter ao longo d
 
 Descreve a configuração física de hardware em nuvem onde o software será executado, incluindo os nós (Servidor da Aplicação, Servidor de Arquivos) e os componentes de software (`Microsserviços`, `Arquivos .json`) implantados neles.
 
-![Diagrama de Implantação](Diagramas_IMG/D/Diagramadeimplantação.png)
+![Diagrama de Implantação](Diagramas_IMG/D/DiagramadeImplantação.png)
 
 ---
 
@@ -125,7 +125,7 @@ Estes diagramas detalham a ordem cronológica das interações e a troca de mens
 
 Representa o fluxo de eventos e mensagens para o cadastro de um novo usuário.
 
-![Diagrama de Sequência: Cadastro](Diagramas_IMG/D/DiagramadeSequenciaCadastro.png)
+![Diagrama de Sequência: Cadastro](Diagramas_IMG/D/DigramadeSequenciaCadastro.png)
 
 #### Diagrama de Sequência: Montar Ficha de Exercícios (UC-08)
 
