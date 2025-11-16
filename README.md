@@ -1,4 +1,4 @@
-# 🏋️ Básico Bem Feito (Fitness App)
+# 🏋️ Básico Bem Feito 
 
 ## Documentação de Arquitetura de Software
 
